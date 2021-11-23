@@ -11,11 +11,22 @@
     <modules>
         <module>Proxy</module>
         <module>Spigot</module>
+        <module>Lib</module>
     </modules>
 
     <properties>
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
     </properties>
+
+    <!-- Für Versions-Variable in der plugin.yml -->
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
 
 </project>

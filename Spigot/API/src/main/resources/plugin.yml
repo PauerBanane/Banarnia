@@ -1,0 +1,10 @@
+main: de.banarnia.api.BanarniaAPI
+name: Banarnia-API
+version: ${project.version}
+description: Die API vom Banarnia-Netzwerk.
+api-version: 1.17
+author: PauerBanane
+website: www.banarnia.de
+prefix: Banarnia-API
+depend: [WorldGuard, ProtocolLib, WorldEdit]
+softdepend: [Vault, Dynmap, PlaceholderAPI, HolographicDisplays, Citizens]
