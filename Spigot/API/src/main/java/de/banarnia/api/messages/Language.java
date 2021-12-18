@@ -34,6 +34,7 @@ public class Language {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Methoden ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    // GameMode
     public static String getName(GameMode gameMode) {
         // Null check
         Validate.notNull(gameMode);
@@ -41,6 +42,7 @@ public class Language {
         return instance.config.getOrElseSet("GameMode." + gameMode.toString(), gameMode.name());
     }
 
+    // Material
     public static String getName(Material material) {
         // Null check
         Validate.notNull(material);
@@ -48,6 +50,7 @@ public class Language {
         return instance.config.getOrElseSet("Material." + material.toString(), material.name());
     }
 
+    // ItemStack
     public static String getName(ItemStack item) {
         // Null check
         Validate.notNull(item);
@@ -60,6 +63,7 @@ public class Language {
         return getName(item.getType());
     }
 
+    // Enchantment
     public static final String getName(Enchantment enchantment) {
         // Null check
         Validate.notNull(enchantment);
@@ -68,6 +72,7 @@ public class Language {
                                                                  enchantment.getKey().getKey());
     }
 
+    // EntityType
     public static String getName(EntityType entityType) {
         // Null check
         Validate.notNull(entityType);
@@ -75,6 +80,7 @@ public class Language {
         return instance.config.getOrElseSet("EntityType." + entityType.toString(), entityType.name());
     }
 
+    // PotionEffectType
     public static String getName(PotionEffectType potionEffectType) {
         // Null check
         Validate.notNull(potionEffectType);
@@ -83,6 +89,7 @@ public class Language {
                                                                       potionEffectType.getName());
     }
 
+    // Villager Profession
     public static String getName(Villager.Profession profession) {
         // Null check
         Validate.notNull(profession);
@@ -90,6 +97,7 @@ public class Language {
         return instance.config.getOrElseSet("VillagerProfession." + profession.toString(), profession.name());
     }
 
+    // DayOfWeek
     public static String getName(DayOfWeek day) {
         // Null check
         Validate.notNull(day);
@@ -97,6 +105,7 @@ public class Language {
         return instance.config.getOrElseSet("Day." + day.name(), day.name());
     }
 
+    // Month
     public static String getName(Month month) {
         // Null check
         Validate.notNull(month);

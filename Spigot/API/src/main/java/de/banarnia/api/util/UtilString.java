@@ -9,6 +9,17 @@ import java.util.List;
  */
 public class UtilString {
 
+    // Abfragen, ob eine String-Liste einen String enthält - unabhängig von Groß- und Kleinschreibung
+    public static boolean containsIgnoreCase(List<String> list, String word) {
+        // Gesamte Liste durchgehen und Strings vergleichen
+        for (String line : list)
+            if (line.equalsIgnoreCase(word))
+                return true;
+
+        // False zurückgeben, wenn kein String gleich ist
+        return false;
+    }
+
     // Führt eine List<String> zu einem String zusammen
     public static String mergeStringList(List<String> list) {
         // Null check

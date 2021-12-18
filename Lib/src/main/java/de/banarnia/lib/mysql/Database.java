@@ -2,7 +2,6 @@ package de.banarnia.lib.mysql;
 
 import de.banarnia.lib.util.AbstractFileLoader;
 
-import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.Properties;
 import java.util.logging.Logger;

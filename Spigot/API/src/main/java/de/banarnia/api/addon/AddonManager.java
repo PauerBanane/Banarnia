@@ -3,10 +3,8 @@ package de.banarnia.api.addon;
 import com.google.common.collect.Maps;
 import de.banarnia.api.messages.Message;
 import de.banarnia.api.plugin.BanarniaPlugin;
-import net.royawesome.jlibnoise.module.combiner.Add;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 
 import java.util.Collection;
 import java.util.Comparator;

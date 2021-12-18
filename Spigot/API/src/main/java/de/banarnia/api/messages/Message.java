@@ -1,5 +1,7 @@
 package de.banarnia.api.messages;
 
+import java.util.List;
+
 /* Message Enumeration
  * Beinhaltet alle Standard-Nachrichten.
  */
