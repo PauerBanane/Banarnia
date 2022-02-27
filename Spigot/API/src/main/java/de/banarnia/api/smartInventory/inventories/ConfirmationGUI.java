@@ -4,9 +4,9 @@ import com.google.common.collect.Lists;
 import de.banarnia.api.smartInventory.ClickableItem;
 import de.banarnia.api.smartInventory.SmartInventory;
 import de.banarnia.api.smartInventory.content.InventoryContents;
-import de.banarnia.api.smartInventory.content.InventoryProvider;
+import de.banarnia.api.smartInventory.content.provider.FilledInventoryProvider;
+import de.banarnia.api.smartInventory.content.provider.InventoryProvider;
 import de.banarnia.api.util.ItemBuilder;
-import de.banarnia.api.util.UtilClickableItem;
 import de.banarnia.api.util.UtilPlayer;
 import de.banarnia.api.util.UtilScheduler;
 import org.bukkit.Material;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-public class ConfirmationGUI implements InventoryProvider {
+public class ConfirmationGUI implements FilledInventoryProvider {
 
     public static void open(Player player, String title, Consumer<Boolean> consumer) {
         open(player, title, true, consumer);
@@ -41,8 +41,6 @@ public class ConfirmationGUI implements InventoryProvider {
 
     @Override
     public void init(Player player, InventoryContents contents) {
-        contents.fill(ClickableItem.empty(UtilClickableItem.getFiller()));
-
         for (int i = 0; i < 36; i++) {
             if (acceptSlots.contains(i))
                 contents.set(i, getConfirmItem(player, contents));
@@ -59,7 +57,7 @@ public class ConfirmationGUI implements InventoryProvider {
     }
 
     private ClickableItem getConfirmItem(Player player, InventoryContents contents) {
-        ItemBuilder builder = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).name(" ");
+        ItemBuilder builder = ItemBuilder.of(Material.GREEN_STAINED_GLASS_PANE).name(" ");
 
         return ClickableItem.of(builder.build(), click -> {
             this.confirm = true;
@@ -71,7 +69,7 @@ public class ConfirmationGUI implements InventoryProvider {
     }
 
     private ClickableItem getDenyItem(Player player, InventoryContents contents) {
-        ItemBuilder builder = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).name(" ");
+        ItemBuilder builder = ItemBuilder.of(Material.RED_STAINED_GLASS_PANE).name(" ");
 
         return ClickableItem.of(builder.build(), click -> {
             this.confirm = false;

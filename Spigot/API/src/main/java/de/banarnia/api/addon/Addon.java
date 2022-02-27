@@ -78,7 +78,8 @@ public class Addon implements Listener, IAddon {
     // Command registrieren
     public void registerCommand(BaseCommand command) {
         // Null check
-        Validate.notNull(command);
+        if (command == null)
+            throw new IllegalArgumentException();
 
         // Command registrieren
         plugin.registerCommand(command);
@@ -90,7 +91,8 @@ public class Addon implements Listener, IAddon {
     // Command deregistrieren
     public void unregisterCommand(BaseCommand command) {
         // Null check
-        Validate.notNull(command);
+        if (command == null)
+            throw new IllegalArgumentException();
 
         // Command deregistrieren
         plugin.getCommandManager().unregisterCommand(command);
@@ -102,7 +104,8 @@ public class Addon implements Listener, IAddon {
     // Listener registrieren
     public void registerListener(Listener listener) {
         // Null check
-        Validate.notNull(listener);
+        if (listener == null)
+            throw new IllegalArgumentException();
 
         // Listener registrieren
         pluginManager.registerEvents(listener, plugin);
@@ -114,7 +117,8 @@ public class Addon implements Listener, IAddon {
     // Listener deregistrieren
     public void unregisterListener(Listener listener) {
         // Null check
-        Validate.notNull(listener);
+        if (listener == null)
+            throw new IllegalArgumentException();
 
         // Listener deregistrieren
         HandlerList.unregisterAll(listener);

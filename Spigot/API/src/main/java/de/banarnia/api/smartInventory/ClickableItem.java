@@ -34,4 +34,7 @@ public class ClickableItem {
     public void setItem(ItemStack item) {
         this.item = item;
     }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Standard Items ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 }

@@ -26,7 +26,7 @@ public class SpecialInventoryOpener implements InventoryOpener {
 
     @Override
     public Inventory open(SmartInventory inv, Player player) {
-        InventoryManager manager = InventoryManager.get();
+        InventoryManager manager = InventoryManager.getInstance();
         Inventory handle = manager.getContents(player).get().getInventory();
 
         fill(handle, manager.getContents(player).get());

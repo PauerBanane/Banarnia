@@ -2,9 +2,13 @@ package de.banarnia.api.util;
 
 import com.google.common.collect.Lists;
 import de.banarnia.api.messages.Language;
-import net.md_5.bungee.api.chat.BaseComponent;
+import de.banarnia.api.skulls.SkullManager;
 import org.apache.commons.lang.Validate;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -29,6 +33,16 @@ public final class ItemBuilder {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Static Aufruf der Konstruktoren ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    // ItemBuilder mit einem String erstellen - kann auch ein Custom Head sein
+    public static ItemBuilder of(String s) {
+        return new ItemBuilder(s);
+    }
+
+    // ItemBuilder mit einem String und Default-Material erstellen - kann auch ein Custom Head sein
+    public static ItemBuilder of(String s, Material def) {
+        return new ItemBuilder(s, def);
+    }
+
     // ItemBuilder mit einem Material erstellen
     public static ItemBuilder of(Material material) {
         return new ItemBuilder(material);
@@ -50,6 +64,91 @@ public final class ItemBuilder {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Konstruktoren ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    /* Konstruktor für den ItemBuilder
+     * Konstruktor mit einem String als Argument.
+     */
+    private ItemBuilder(String s) {
+        this(s, null);
+    }
+
+    /* Konstruktor für den ItemBuilder
+     * Konstruktor mit einem String als Argument und einem Material als Ausweich-Item.
+     */
+    private ItemBuilder(String s, Material def) {
+        // Null check
+        if (s == null || s.length() == 0)
+            throw new IllegalArgumentException();
+
+        // Variable für den ItemStack anlegen
+        ItemStack item = null;
+
+        // Abfrage, ob ein Material angegeben ist
+        Material material = Material.getMaterial(s);
+        if (material != null) {
+            // ItemStack anlegen
+            item = new ItemStack(item);
+
+            // Initialisieren
+            init(item, null);
+
+            // Methode beenden
+            return;
+        }
+
+        // Abfrage, ob der String eine Head-URL ist
+        if (s.startsWith("URL:")) {
+            // String in ein Array splitten, um das "URL:" von der eigentlichen URL zu trennen
+            String[] splitted = s.split("URL:");
+
+            // Abfrage, ob das Array aus mindestens 2 Strings besteht
+            if (splitted.length <= 1) return;
+
+            // Url in separate Variable sichern
+            String url = splitted[1];
+
+            // Skull bekommen
+            item = SkullManager.getInstance().getSkullItem(url);
+
+            // Initialisieren
+            init(item, null);
+
+            // Methode beenden
+            return;
+        }
+
+        // Abfrage, ob der String ein Skull ist
+        if (s.startsWith("Skull:")) {
+            // String in ein Array splitten, um das "URL:" von der eigentlichen URL zu trennen
+            String[] splitted = s.split("Skull:");
+
+            // Abfrage, ob das Array aus mindestens 2 Strings besteht
+            if (splitted.length <= 1) return;
+
+            // Url in separate Variable sichern
+            String skullName = splitted[1];
+
+            // Skull bekommen
+            item = SkullManager.getInstance().getSkullItem(skullName);
+
+            // Initialisieren
+            init(item, null);
+
+            // Methode beenden
+            return;
+        }
+
+        // Abfrage, ob ein Ausweich Material genommen werden soll
+        if (def != null) {
+            init(new ItemStack(def));
+
+            // Methode beenden
+            return;
+        }
+
+        // Error throwen, wenn nichts klappt
+        throw new IllegalArgumentException("Could not create ItemStack with input: " + s);
+    }
 
     /* Konstruktor für den ItemBuilder
      * Konstruktor mit einem Material als Argument.
@@ -76,8 +175,19 @@ public final class ItemBuilder {
      * Hauptkonstruktor, der die Meta-Daten Instanzen anlegt und Flags setzt.
      */
     private ItemBuilder(ItemStack item, ItemFlag... flags) {
+        // Initialisierung
+        init(item, flags);
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Init ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    /* Init Methode
+     * Initialisiert die Werte des Items nach Aufruf des Konstruktors.
+     */
+    private void init(ItemStack item, ItemFlag... flags) {
         // Null check
-        Validate.notNull(item);
+        if (item == null)
+            throw new IllegalArgumentException();
 
         // Instanz setzen
         this.item = item;
@@ -108,7 +218,8 @@ public final class ItemBuilder {
     // DisplayName des Items ändern
     public ItemBuilder name(String name) {
         // Null check
-        Validate.notNull(name);
+        if (name == null)
+            throw new IllegalArgumentException();
 
         // Abfrage, ob ItemMeta existiert
         if (meta == null) {
@@ -130,7 +241,8 @@ public final class ItemBuilder {
     // DisplayName des Items ändern - mit BaseComponents
     public ItemBuilder name(BaseComponent... components) {
         // Null check
-        Validate.notNull(components);
+        if (components == null)
+            throw new IllegalArgumentException();
 
         // Abfrage, ob ItemMeta existiert
         if (meta == null) {
@@ -149,7 +261,8 @@ public final class ItemBuilder {
     // Farbe des ItemNamens ändern
     public ItemBuilder colorName(ChatColor color) {
         // Null check
-        Validate.notNull(color);
+        if (color == null)
+            throw new IllegalArgumentException();
 
         // Aktuellen Namen bekommen - kann auch Übersetzung des Materials sein
         String displayName      = getDisplayName();
@@ -263,6 +376,11 @@ public final class ItemBuilder {
         return this;
     }
 
+    // Enchantment hinzufügen - mit weniger Parametern
+    public ItemBuilder addEnchantment(Enchantment enchantment) {
+        return addEnchantment(enchantment, 1, false);
+    }
+
     // Enchantment hinzufügen
     public ItemBuilder addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
         // Abfrage, ob ItemMeta existiert
@@ -310,7 +428,8 @@ public final class ItemBuilder {
 
     public ItemBuilder removeItemFlag(ItemFlag... flags) {
         // Null check
-        Validate.notNull(flags);
+        if (flags == null)
+            throw new IllegalArgumentException();
 
         // Abfrage, ob das Item eine ItemMeta hat
         if (meta == null) {

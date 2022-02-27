@@ -18,13 +18,14 @@ public class MessageHandler {
     private static FileLoader defaultFile;
 
     // Zuordnung von Enum zu FileLoader
-    private HashMap<Enum<? extends IMessage>, FileLoader> enumMap;
+    private HashMap<Class<? extends IMessage>, FileLoader> enumMap;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Konstruktor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     private MessageHandler(BanarniaAPI plugin) {
         // Null check
-        Validate.notNull(plugin);
+        if (plugin == null)
+            throw new IllegalArgumentException();
 
         // Map Instanzieren
         enumMap = Maps.newHashMap();
@@ -39,49 +40,52 @@ public class MessageHandler {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Methoden zur Registrierung ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Abfrage, ob eine Enumeration schon registriert wurde
-    public boolean isRegistered(Enum<? extends IMessage> enumeration) {
-        return enumMap != null ? enumMap.containsKey(enumeration) : false;
+    public boolean isRegistered(Class<? extends IMessage> enumClass) {
+        return enumMap != null ? enumMap.containsKey(enumClass) : false;
     }
 
-    // Registriert eine Message-Enumeration in dem Standard-FileLoader
-    public void register(Enum<? extends IMessage> enumeration) {
+    // Registriert eine Message-Enumeration
+    public void register(Class<? extends IMessage> enumeration) {
         register(enumeration, defaultFile);
     }
 
     // Registriert eine Message-Enumeration mit einem dazugehörigen FileLoader
-    public void register(Enum<? extends IMessage> enumeration, FileLoader messageFile) {
+    public void register(Class<? extends IMessage> enumClass, FileLoader messageFile) {
         // Null checks
-        Validate.notNull(enumeration);
-        Validate.notNull(messageFile);
-        Validate.notNull(enumMap);
+        if (enumClass == null || messageFile == null || enumMap == null || !enumClass.isEnum())
+            throw new IllegalArgumentException();
 
         // Abfrage, ob die Enum schon registriert wurde
-        if (isRegistered(enumeration))
+        if (isRegistered(enumClass))
             throw new IllegalArgumentException(Message.ERROR_MESSAGEHANDLER_ALREADY_REGISTERED.get());
 
         // Enum in die Map eintragen
-        enumMap.put(enumeration, messageFile);
+        enumMap.put(enumClass, messageFile);
+
+        // Enum laden
+        load(enumClass);
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Methoden zum Laden ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Nachrichten aus der Config laden
-    public void load(Enum<? extends IMessage> enumeration) {
+    public void load(Class<? extends IMessage> enumClass) {
         // Null check
-        Validate.notNull(enumeration);
+        if (enumClass == null)
+            throw new IllegalArgumentException();
 
         // Abfrage, ob die Enumeration registriert wurde
-        if (!isRegistered(enumeration))
+        if (!isRegistered(enumClass))
             throw new IllegalStateException(Message.ERROR_MESSAGEHANDLER_NOT_REGISTERED.get());
 
         // FileLoader erhalten
-        FileLoader fileLoader = enumMap.get(enumeration);
+        FileLoader fileLoader = enumMap.get(enumClass);
 
         // Datei neu laden
         fileLoader.reload();
 
         // Werte auslesen
-        Arrays.stream(enumeration.getDeclaringClass().getEnumConstants()).forEach(enumValue -> {
+        Arrays.stream(enumClass.getEnumConstants()).forEach(enumValue -> {
             // Key zu der Nachricht
             String key = enumValue.getKey();
 
@@ -96,7 +100,7 @@ public class MessageHandler {
         });
     }
 
-    // Alle Nachtichten neu laden
+    // Alle Nachrichten neu laden
     public void reload() {
         enumMap.keySet().forEach(enumeration -> load(enumeration));
     }
@@ -104,7 +108,7 @@ public class MessageHandler {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Getter & Setter ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     public static MessageHandler getInstance() {
-        if (instance != null)
+        if (instance == null)
             new MessageHandler(BanarniaAPI.getInstance());
 
         return instance;

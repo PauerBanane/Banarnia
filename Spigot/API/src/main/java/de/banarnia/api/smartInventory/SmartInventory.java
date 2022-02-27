@@ -2,7 +2,8 @@ package de.banarnia.api.smartInventory;
 
 import de.banarnia.api.smartInventory.content.InventoryContentImpl;
 import de.banarnia.api.smartInventory.content.InventoryContents;
-import de.banarnia.api.smartInventory.content.InventoryProvider;
+import de.banarnia.api.smartInventory.content.provider.Closable;
+import de.banarnia.api.smartInventory.content.provider.InventoryProvider;
 import de.banarnia.api.smartInventory.opener.InventoryOpener;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -48,7 +49,7 @@ public class SmartInventory {
     }
 
     public Inventory open(Player player, int page, String[] property, Object[] value) {
-        InventoryManager manager = InventoryManager.get();
+        InventoryManager manager = InventoryManager.getInstance();
 
         Optional<SmartInventory> oldInv = manager.getInventory(player);
 
@@ -71,6 +72,10 @@ public class SmartInventory {
             }
         }
 
+        this.provider.preInit(player, contents);
+        if (provider instanceof Closable)
+            ((Closable) provider).insertCloseItem(player, contents);
+
         this.provider.init(player, contents);
 
 
@@ -81,7 +86,7 @@ public class SmartInventory {
     }
 
     public void close(Player player) {
-        InventoryManager manager = InventoryManager.get();
+        InventoryManager manager = InventoryManager.getInstance();
 
         listeners.stream().filter(listener -> listener.getType() == InventoryCloseEvent.class).forEach(listener -> ((InventoryListener<InventoryCloseEvent>) listener).accept(new InventoryCloseEvent(player.getOpenInventory())));
 

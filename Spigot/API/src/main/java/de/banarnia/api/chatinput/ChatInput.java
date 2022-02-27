@@ -1,38 +1,19 @@
 package de.banarnia.api.chatinput;
 
-import com.google.common.collect.Maps;
 import de.banarnia.api.BanarniaAPI;
+import de.banarnia.api.messages.Message;
 import de.banarnia.api.util.Title;
 import de.banarnia.api.util.UtilMath;
-import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 
-import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
+/* ChatInput
+ * Klasse für das einfache Handling von Chat-Eingaben.
+ */
 public class ChatInput<T> {
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Eingabe Auswertung ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    // Map mit allen möglichen Objects
-    private static Map<Class, Supplier<String>> registeredObjects = Maps.newHashMap();
-
-    // Neues Object registrieren
-    public static void registerInputObject(Class clazz, Supplier<String> message) {
-        registeredObjects.put(clazz, message);
-    }
-
-    // Object von der Map entfernen
-    public static void unregisterObject(Class clazz) {
-        registeredObjects.remove(clazz);
-    }
-
-    // Abfrage, ob das Objekt registriert ist
-    public static boolean isRegistered(Class clazz) {
-        return registeredObjects.containsKey(clazz);
-    }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Variablen ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -48,6 +29,9 @@ public class ChatInput<T> {
     // Abfrage, ob das Inventar zu Beginn der Conversation geschlossen werden soll
     protected boolean closeInventory    = true;
 
+    // Abfrage, ob ein Sound abgespielt werden soll
+    protected boolean playSound         = true;
+
     // Visualisierung
     protected String message;
     protected Title  title;
@@ -59,7 +43,8 @@ public class ChatInput<T> {
 
     public ChatInput(Class<T> type) {
         // Null check
-        Validate.notNull(type);
+        if (type == null)
+            throw new IllegalArgumentException();
 
         // Datentyp abspeichern
         this.type = type;
@@ -67,7 +52,7 @@ public class ChatInput<T> {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Conversation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public ChatInput start(Player player) {
+    public ChatInput<T> start(Player player) {
         // Inventar des Spielers schließen, wenn die Option aktiviert wurde
         if (closeInventory)
             player.closeInventory();
@@ -80,6 +65,13 @@ public class ChatInput<T> {
         // Conversation beginnen
         player.beginConversation(factory.buildConversation(player));
 
+        // Title abspielen
+        if (title != null)
+            title.send(player);
+
+        // Nachricht senden
+        player.sendMessage(message);
+
         // Instanz zurückgeben
         return this;
     }
@@ -87,17 +79,24 @@ public class ChatInput<T> {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Eingabe & Auswertung ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Eingabe auswerten
-    protected ChatInput onResponse(String message, boolean canceled) {
+    protected ChatInput<T> onResponse(String message, boolean canceled) {
         // Eingegebene Nachricht in richtigen Datentyp umwandeln - Null wenn fehlgeschlagen
-        T result = convertInput(message);
+        T result = null;
+        try {
+            result = convertInput(message);
+        } catch (ClassCastException ex) {}
 
         // Wenn der result nicht der richtige Datentyp ist, wird er auf null gesetzt
         if (!(result instanceof T))
             result = null;
 
+        if (result == null) {
+            BanarniaAPI.getInstance().getLogger().warning("Failed to resolve ChatInput for " + type.getName());
+            canceled = true;
+        }
+
         // Consumer akzeptieren
-        if (consumer != null)
-            consumer.accept(result, canceled);
+        consumer.accept(result, canceled);
 
         // Instanz zurückgeben
         return this;
@@ -110,12 +109,9 @@ public class ChatInput<T> {
         if (type == null)
             return null;
 
-        // Supplier für die Klasse aufrufen
-        Supplier<String> supplier
-
         // If-Verzweigung für verschiedene Datentypen - CASE ist mit Klassen nur umständlich möglich
-        if (T instanceof String)
-            return (T) input;
+        if (type == String.class)
+            return (T) input.replace("&", "§");
 
         if (type == Boolean.class) {
             if (input.equalsIgnoreCase(Boolean.TRUE.toString()))
@@ -125,7 +121,7 @@ public class ChatInput<T> {
                 return (T) Boolean.FALSE;
         }
 
-        if (type == Integer.class) {
+        if (type == Integer.class || type == int.class) {
             // Abfrage, ob die Eingabe ein int ist
             if (UtilMath.isInt(input)) {
                 // Integer parsen
@@ -136,7 +132,7 @@ public class ChatInput<T> {
             }
         }
 
-        if (type == Float.class) {
+        if (type == Float.class || type == float.class) {
             // Abfrage, ob die Eingabe ein Float ist
             if (UtilMath.isFloat(input)) {
                 // Float parsen
@@ -147,7 +143,7 @@ public class ChatInput<T> {
             }
         }
 
-        if (type == Double.class){
+        if (type == Double.class || type == double.class){
             // Abfrage, ob die Eingabe ein Double ist
             if (UtilMath.isFloat(input)) {
                 // Float parsen
@@ -165,7 +161,7 @@ public class ChatInput<T> {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Chain Methoden ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Festlegen, ob die Eingabe abgebrochen werden kann
-    public ChatInput setCancelable(boolean cancelable) {
+    public ChatInput<T> setCancelable(boolean cancelable) {
         this.cancelable = cancelable;
 
         // Instanz zurückgeben
@@ -173,7 +169,7 @@ public class ChatInput<T> {
     }
 
     // Festlegen, ob die Antwort im Chat des Spielers angezeigt wird
-    public ChatInput withLocalEcho(boolean withLocalEcho) {
+    public ChatInput<T> withLocalEcho(boolean withLocalEcho) {
         this.withLocalEcho = withLocalEcho;
 
         // Instanz zurückgeben
@@ -181,20 +177,57 @@ public class ChatInput<T> {
     }
 
     // Festlegen, ob das Inventar zu Beginn der Conversation geschlossen werden soll
-    public void closeInventory(boolean closeInventory) {
+    public ChatInput<T> closeInventory(boolean closeInventory) {
         this.closeInventory = closeInventory;
+
+        // Instanz zurückgeben
+        return this;
+    }
+
+    // Festlegen, ob ein Sound bei Beginn abgespielt werden soll
+    public ChatInput<T> playSound(boolean playSound) {
+        this.playSound = playSound;
+
+        // Instanz zurückgeben
+        return this;
     }
 
     // Festlegen, welche Nachricht im Chat zu Beginn der Konversation angezeigt wird
-    public ChatInput message(String message) {
+    public ChatInput<T> message(String message) {
+        // Null check
+        if (message == null)
+            return this;
+
         this.message = message;
 
         // Instanz zurückgeben
         return this;
     }
 
+    // Title festlegen - mit String als Haupttitle
+    public ChatInput<T> title(String title) {
+        // Null check
+        if (title == null)
+            return this;
+
+        return title(title, Message.CHAT_INPUT_DEFAULT_SUBTITLE.get());
+    }
+
+    // Title festlegen - mit String als Haupttitle und String als Subtitle
+    public ChatInput<T> title(String title, String subTitle) {
+        // Null check
+        if (title == null || subTitle == null)
+            return this;
+
+        return title(Title.of("§6" + title, "§e" + subTitle));
+    }
+
     // Festlegen, welcher Title zu Beginn der Konversation angezeigt wird
-    public ChatInput title(Title title) {
+    public ChatInput<T> title(Title title) {
+        // Null check
+        if (title == null)
+            return this;
+
         this.title = title;
 
         // Instanz zurückgeben
@@ -202,7 +235,11 @@ public class ChatInput<T> {
     }
 
     // Consumer für die weitere Bearbeitung nach der Eingabe des Spielers
-    public ChatInput response(BiConsumer<T, Boolean> response) {
+    public ChatInput<T> response(BiConsumer<T, Boolean> response) {
+        // Null check
+        if (response == null)
+            return this;
+
         this.consumer = response;
 
         // Instanz zurückgeben

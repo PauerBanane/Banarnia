@@ -18,6 +18,17 @@ public interface InventoryContents {
     public Pagination pagination();
     public Pagination pagination(int itemsPerPage, SlotIterator slotIterator);
 
+    default Pagination pagination(int itemsPerPage) {
+        return pagination(itemsPerPage, SlotIterator.Type.CENTERED, 1, 1, true);
+    }
+    default Pagination pagination(int itemsPerPage, int row, int column, boolean allowOverride) {
+        return pagination(itemsPerPage, SlotIterator.Type.CENTERED, row, column, allowOverride);
+    }
+    default Pagination pagination(int itemsPerPage, SlotIterator.Type type, int row, int column, boolean allowOverride) {
+        return pagination(itemsPerPage, type, SlotPos.of(row, column), allowOverride);
+    }
+    public Pagination pagination(int itemsPerPage, SlotIterator.Type type, SlotPos slotPos, boolean allowOverride);
+
     public InventoryContents setPaginationButtons(Player player, int row);
     public InventoryContents setPaginationButtons(Player player, SlotPos prevButtonSlot, SlotPos nextButtonSlot, Material material);
 
@@ -73,5 +84,13 @@ public interface InventoryContents {
     public Map<String, Object> properties();
 
     public InventoryContents setProperty(String name, Object value);
+
+    public int getRows();
+    public int getLastRow();
+
+    public int getColumns();
+    public int getCenterColumn();
+
+
 
 }

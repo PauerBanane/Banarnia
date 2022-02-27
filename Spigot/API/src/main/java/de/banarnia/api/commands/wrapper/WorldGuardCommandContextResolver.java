@@ -1,7 +1,7 @@
 package de.banarnia.api.commands.wrapper;
 
 import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.PaperCommandManager;
+import co.aikar.commands.BukkitCommandManager;
 import co.aikar.locales.MessageKey;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
@@ -16,7 +16,7 @@ import org.bukkit.World;
  */
 public class WorldGuardCommandContextResolver {
 
-    public static void registerWorldGuardCommandContext(PaperCommandManager commandManager) {
+    public static void registerWorldGuardCommandContext(BukkitCommandManager commandManager) {
 
         // ProtectedRegion Completion - Listet nur die Regions in der Welt des Spielers
         commandManager.getCommandCompletions().registerCompletion(DefaultCommandCompletion.PROTECTED_REGION.get(), c -> {

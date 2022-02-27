@@ -11,10 +11,10 @@ import java.util.Set;
  */
 public abstract class AbstractFileLoader {
 
-    private String  path;               // Pfad zu der Datei
-    private File    directory;          // Instanz des Ordners
-    private File    file;               // Instanz der Datei
-    private boolean loaded;             // Config erfolgreich geladen
+    protected String  path;               // Pfad zu der Datei
+    protected File    directory;          // Instanz des Ordners
+    protected File    file;               // Instanz der Datei
+    protected boolean loaded;             // Config erfolgreich geladen
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Konstruktoren ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -61,10 +61,10 @@ public abstract class AbstractFileLoader {
         initConfig();
 
         // Instanz als erfolgreich geladen markieren
-        this.loaded = true;
+        this.loaded = file != null;
     }
 
-    protected abstract void initConfig();
+    protected abstract boolean initConfig();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Datei Methoden ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

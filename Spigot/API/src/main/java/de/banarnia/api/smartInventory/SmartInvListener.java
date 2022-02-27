@@ -1,6 +1,7 @@
 package de.banarnia.api.smartInventory;
 
 import de.banarnia.api.BanarniaAPI;
+import de.banarnia.api.messages.Message;
 import de.banarnia.api.util.F;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -68,9 +69,8 @@ public class SmartInvListener implements Listener {
 
                 p.updateInventory();
             } catch (Exception ex) {
-                p.sendMessage(F.error("Fehler", "Es ist ein Fehler aufgetreten. Bitte melde diesen an einen Admin."));
+                p.sendMessage(F.error("Banarnia", Message.ERROR_GENERAL.get()));
                 ex.printStackTrace();
-                SmartInventory inv = manager.getInventories().get(p);
                 p.closeInventory();
             }
         }

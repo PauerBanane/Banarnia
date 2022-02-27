@@ -39,7 +39,7 @@ public class SmartOpener {
 
     @SuppressWarnings("unchecked")
     public Inventory open() {
-        InventoryManager manager = InventoryManager.get();
+        InventoryManager manager = InventoryManager.getInstance();
         Optional<SmartInventory> oldInv = manager.getInventory(player);
 
         oldInv.ifPresent(inv -> {

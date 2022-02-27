@@ -17,7 +17,7 @@
       <module name="API" options="-parameters" />
       <module name="Banarnia" options="-parameters" />
       <module name="BungeeCord" options="" />
-      <module name="Spigot" options="-parameters" />
+      <module name="Spigot" options="" />
     </option>
   </component>
 </project>

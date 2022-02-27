@@ -2,6 +2,7 @@ package de.banarnia.api.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import de.banarnia.api.messages.Message;
 import de.banarnia.lib.util.AbstractFileLoader;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
@@ -21,9 +22,6 @@ import java.util.Set;
  */
 public class FileLoader extends AbstractFileLoader {
 
-    private String path;                // Pfad zu der Datei
-    private File directory;             // Instanz des Ordners
-    private File file;                  // Instanz der Datei
     private YamlConfiguration config;   // Instanz der YamlConfiguration
     private boolean loaded;             // Config erfolgreich geladen
 
@@ -60,9 +58,18 @@ public class FileLoader extends AbstractFileLoader {
 
     // Konstruktor wird in der Super-Klasse AbstractFileLoader erstellt und ruft nur die #initConfig auf
     @Override
-    protected void initConfig() {
+    protected boolean initConfig() {
+        // Null check
+        if (file == null) {
+            Bukkit.getLogger().severe(Message.ERROR_CONFIG_FILE_IS_NULL.get());
+            return false;
+        }
+
         // YamlConfiguration laden
         this.config = YamlConfiguration.loadConfiguration(file);
+
+        // True zurückgeben, wenn alles geklappt hat
+        return true;
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Datei Methoden ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,8 +77,8 @@ public class FileLoader extends AbstractFileLoader {
     // Speichert eine Datei
     public FileLoader save() {
         // Null checks
-        Validate.notNull(file);
-        Validate.notNull(config);
+        if (file == null || config == null)
+            throw new IllegalArgumentException();
 
         // Datei speichern
         try {
@@ -88,13 +95,15 @@ public class FileLoader extends AbstractFileLoader {
     // Lädt eine Datei neu
     public FileLoader reload() {
         // Null check
-        Validate.notNull(this.path);
+        if (path == null)
+            throw new IllegalArgumentException();
 
         // File erstellen
         this.file = new File(this.path);
 
         // Null check
-        Validate.notNull(this.file);
+        if (file == null)
+            throw new NullPointerException();
 
         // YamlConfiguration erstellen
         this.config = YamlConfiguration.loadConfiguration(this.file);

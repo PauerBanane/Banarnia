@@ -9,6 +9,24 @@ import java.util.List;
  */
 public class UtilString {
 
+    // String-Vergleich mit mehreren Strings
+    public static boolean equals(String input, String... compare) {
+        for (String s : compare)
+            if (s.equals(input))
+                return true;
+
+        return false;
+    }
+
+    // String-Vergleich mit mehreren Strings, unabhängig von Groß- und Kleinschreibung
+    public static boolean equalsIgnoreCase(String input, String... compare) {
+        for (String s : compare)
+            if (s.equals(input))
+                return true;
+
+        return false;
+    }
+
     // Abfragen, ob eine String-Liste einen String enthält - unabhängig von Groß- und Kleinschreibung
     public static boolean containsIgnoreCase(List<String> list, String word) {
         // Gesamte Liste durchgehen und Strings vergleichen
@@ -23,7 +41,8 @@ public class UtilString {
     // Führt eine List<String> zu einem String zusammen
     public static String mergeStringList(List<String> list) {
         // Null check
-        Validate.notNull(list);
+        if (list == null)
+            throw new IllegalArgumentException();
 
         // Hauptmethode aufrufen
         return mergeStringList(list, null);
@@ -32,7 +51,8 @@ public class UtilString {
     // Führt eine List<String> zusammen und trennt die Einträge mit einem Separator
     public static String mergeStringList(List<String> list, String separator) {
         // Null check
-        Validate.notNull(list);
+        if (list == null)
+            throw new IllegalArgumentException();
 
         // Abfrage, ob ein separator vorhanden ist
         boolean addSeparator = separator != null;

@@ -17,7 +17,7 @@ import java.util.*;
 
 public class InventoryManager {
 
-    private static InventoryManager manager;
+    private static InventoryManager instance;
 
     private Map<Player, SmartInventory> inventories;
 
@@ -28,8 +28,8 @@ public class InventoryManager {
     private List<InventoryOpener> openers;
 
     public InventoryManager() {
-        if (InventoryManager.manager != null) return;
-        InventoryManager.manager = this;
+        instance = this;
+
         this.inventories = Maps.newHashMap();
         this.contents = Maps.newHashMap();
         this.defaultOpeners = Arrays.asList(new ChestInventoryOpener(), new SpecialInventoryOpener());
@@ -38,8 +38,11 @@ public class InventoryManager {
         new InvTask().runTaskTimer(BanarniaAPI.getInstance(), 1, 1);
     }
 
-    public static InventoryManager get() {
-        return InventoryManager.manager;
+    public static InventoryManager getInstance() {
+        if (instance == null)
+            new InventoryManager();
+
+        return instance;
     }
 
 

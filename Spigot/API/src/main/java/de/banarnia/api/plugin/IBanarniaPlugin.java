@@ -7,6 +7,7 @@ package de.banarnia.api.plugin;
 interface IBanarniaPlugin {
 
     // Methoden zum Laden des Plugins
+    default void preLoad()  {}
     default void load()     {}
     default void enable()   {}
     default void disable()  {}

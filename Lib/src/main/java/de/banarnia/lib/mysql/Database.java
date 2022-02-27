@@ -107,8 +107,8 @@ public class Database {
         Properties properties = new Properties();
         properties.setProperty("user", username);
         properties.setProperty("password", password);
-        properties.setProperty("useSSL", "false");
-        properties.setProperty("autoReconnect", "true");
+        properties.setProperty("useSSL", String.valueOf(useSSL));
+        properties.setProperty("autoReconnect", String.valueOf(autoReconnect));
 
         // Versuchen die Verbindung herzustellen
         try {

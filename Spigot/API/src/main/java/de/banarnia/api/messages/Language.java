@@ -37,7 +37,8 @@ public class Language {
     // GameMode
     public static String getName(GameMode gameMode) {
         // Null check
-        Validate.notNull(gameMode);
+        if (gameMode == null)
+            throw new IllegalArgumentException();
 
         return instance.config.getOrElseSet("GameMode." + gameMode.toString(), gameMode.name());
     }
@@ -45,7 +46,8 @@ public class Language {
     // Material
     public static String getName(Material material) {
         // Null check
-        Validate.notNull(material);
+        if (material == null)
+            throw new IllegalArgumentException();
 
         return instance.config.getOrElseSet("Material." + material.toString(), material.name());
     }
@@ -53,7 +55,8 @@ public class Language {
     // ItemStack
     public static String getName(ItemStack item) {
         // Null check
-        Validate.notNull(item);
+        if (item == null)
+            throw new IllegalArgumentException();
 
         // Abfrage, ob der ItemStack ein DisplayName hat
         if (item.hasItemMeta() && item.getItemMeta().hasDisplayName())
@@ -66,7 +69,8 @@ public class Language {
     // Enchantment
     public static final String getName(Enchantment enchantment) {
         // Null check
-        Validate.notNull(enchantment);
+        if (enchantment == null)
+            throw new IllegalArgumentException();
 
         return instance.config.getOrElseSet("Enchantment." + enchantment.getKey().getKey(),
                                                                  enchantment.getKey().getKey());
@@ -75,7 +79,8 @@ public class Language {
     // EntityType
     public static String getName(EntityType entityType) {
         // Null check
-        Validate.notNull(entityType);
+        if (entityType == null)
+            throw new IllegalArgumentException();
 
         return instance.config.getOrElseSet("EntityType." + entityType.toString(), entityType.name());
     }
@@ -83,7 +88,8 @@ public class Language {
     // PotionEffectType
     public static String getName(PotionEffectType potionEffectType) {
         // Null check
-        Validate.notNull(potionEffectType);
+        if (potionEffectType == null)
+            throw new IllegalArgumentException();
 
         return instance.config.getOrElseSet("PotionEffectType." + potionEffectType.getName(),
                                                                       potionEffectType.getName());
@@ -92,7 +98,8 @@ public class Language {
     // Villager Profession
     public static String getName(Villager.Profession profession) {
         // Null check
-        Validate.notNull(profession);
+        if (profession == null)
+            throw new IllegalArgumentException();
 
         return instance.config.getOrElseSet("VillagerProfession." + profession.toString(), profession.name());
     }
@@ -100,7 +107,8 @@ public class Language {
     // DayOfWeek
     public static String getName(DayOfWeek day) {
         // Null check
-        Validate.notNull(day);
+        if (day == null)
+            throw new IllegalArgumentException();
 
         return instance.config.getOrElseSet("Day." + day.name(), day.name());
     }
@@ -108,7 +116,8 @@ public class Language {
     // Month
     public static String getName(Month month) {
         // Null check
-        Validate.notNull(month);
+        if (month == null)
+            throw new IllegalArgumentException();
 
         return instance.config.getOrElseSet("Month." + month.name(), month.name());
     }

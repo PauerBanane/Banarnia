@@ -1,7 +1,8 @@
 package de.banarnia.api.smartInventory.content;
 
 import com.google.common.collect.Maps;
-import de.banarnia.api.menu.gui.MenuGUI;
+import de.banarnia.api.config.ApiConfig;
+import de.banarnia.api.messages.Message;
 import de.banarnia.api.smartInventory.ClickableItem;
 import de.banarnia.api.smartInventory.SmartInventory;
 import de.banarnia.api.util.ItemBuilder;
@@ -60,6 +61,11 @@ public class InventoryContentImpl implements InventoryContents {
     }
 
     @Override
+    public Pagination pagination(int itemsPerPage, SlotIterator.Type type, SlotPos slotPos, boolean allowOverride) {
+        return pagination(itemsPerPage, newIterator(type, slotPos, allowOverride));
+    }
+
+    @Override
     public InventoryContents setPaginationButtons(Player player, int row) {
         return setPaginationButtons(player, SlotPos.of(row,1), SlotPos.of(row, 7), Material.ARROW);
     }
@@ -67,11 +73,13 @@ public class InventoryContentImpl implements InventoryContents {
     @Override
     public InventoryContents setPaginationButtons(Player player, SlotPos prevButtonSlot, SlotPos nextButtonSlot, Material material) {
         if (!pagination.isLast())
-            set(nextButtonSlot, ClickableItem.of((new ItemBuilder(Material.ARROW)).name("§8§lSeite vor").build(), e -> {
+            set(nextButtonSlot, ClickableItem.of((ItemBuilder.of(ApiConfig.GUI_NEXT_PAGE_ICON()))
+                    .name(Message.GUI_PAGE_NEXT.get()).build(), e -> {
                 inventory().open(player, pagination.next().getPage());
             }));
         if (!pagination.isFirst())
-            set(prevButtonSlot, ClickableItem.of((new ItemBuilder(Material.ARROW)).name("§8§lSeite zurück").build(), e -> {
+            set(prevButtonSlot, ClickableItem.of(ItemBuilder.of(ApiConfig.GUI_PREV_PAGE_ICON())
+                    .name(Message.GUI_PAGE_PREVIOUS.get()).build(), e -> {
                 inventory().open(player, pagination.previous().getPage());
             }));
         return this;
@@ -188,22 +196,22 @@ public class InventoryContentImpl implements InventoryContents {
     }
 
     public InventoryContents fillColumn(int column, Material material) {
-        return fillRow(column, ClickableItem.empty(new ItemBuilder(material).name(" ").build()));
+        return fillRow(column, ClickableItem.empty(ItemBuilder.of(material).name(" ").build()));
     }
     public InventoryContents fillBorders() {
         return fillBorders(Material.GRAY_STAINED_GLASS_PANE);
     }
     public InventoryContents fillRow(int row, Material material) {
-        return fillRow(row, ClickableItem.empty(new ItemBuilder(material).name(" ").build()));
+        return fillRow(row, ClickableItem.empty(ItemBuilder.of(material).name(" ").build()));
     }
     public InventoryContents fill(Material material) {
-        return fill(ClickableItem.empty(new ItemBuilder(material).name(" ").build()));
+        return fill(ClickableItem.empty(ItemBuilder.of(material).name(" ").build()));
     }
     public InventoryContents fill() {
         return fill(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
     }
     public InventoryContents fillBorders(Material material) {
-        return fillBorders(ClickableItem.empty(new ItemBuilder(material).name(" ").build()));
+        return fillBorders(ClickableItem.empty(ItemBuilder.of(material).name(" ").build()));
     }
 
     @Override
@@ -233,17 +241,19 @@ public class InventoryContentImpl implements InventoryContents {
 
     @Override
     public InventoryContents setCloseItem(int row, int column, Player player) {
-        return set(row,column,ClickableItem.of(ItemBuilder.of(Material.BARRIER).name("§cSchließen").build(), click -> player.closeInventory()));
+        return set(row,column,ClickableItem.of(ItemBuilder.of(ApiConfig.GUI_CLOSE_ICON()).name(Message.GUI_CLOSE.get()).build(),
+                click -> player.closeInventory()));
     }
 
     @Override
     public InventoryContents setBackItem(int row, int column, Player player, Consumer<InventoryClickEvent> consumer) {
-        return set(row, column, ClickableItem.of(ItemBuilder.of(Material.ARROW).name("§cZurück").build(), click -> consumer.accept(click)));
+        return set(row, column, ClickableItem.of(ItemBuilder.of(ApiConfig.GUI_BACK_ICON()).name(Message.GUI_BACK.get()).build(),
+                click -> consumer.accept(click)));
     }
 
     @Override
     public InventoryContents setMenuItem(int row, int column, Player player) {
-        return setBackItem(row, column, player, click -> MenuGUI.open(player));
+        return this;
     }
 
     @Override
@@ -286,6 +296,29 @@ public class InventoryContentImpl implements InventoryContents {
     public InventoryContents setProperty(String name, Object value) {
         properties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int getRows() {
+        return contents.length;
+    }
+
+    @Override
+    public int getLastRow() {
+        return getRows() - 1 >= 0 ? getRows() - 1 : 0;
+    }
+
+    @Override
+    public int getColumns() {
+        if (contents == null || contents[0] == null)
+            return 0;
+
+        return contents[0].length;
+    }
+
+    @Override
+    public int getCenterColumn() {
+        return getColumns() / 2;
     }
 
     private void update(int row, int column, ClickableItem item) {

@@ -1,48 +1,36 @@
 package de.banarnia.api.smartInventory.buttons;
 
 import de.banarnia.api.chatinput.ChatInput;
+import de.banarnia.api.messages.Message;
 import de.banarnia.api.smartInventory.ClickableItem;
-import org.bukkit.Material;
+import de.banarnia.api.util.Title;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
+/* InputButton Klasse.
+ * Damit können direkt ClickableItems erstellt werden,
+ * welche die Eingabe eines bestimmten Datentyps in den Chat erfordern.
+ */
+public class InputButton<T> extends ClickableItem {
 
-public class InputButton extends ClickableItem {
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Konstruktor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private Consumer<InventoryClickEvent> onRightClick;
-
-    public InputButton(Consumer<String> result) {
-        this(new ItemStack(Material.BOOK), "Input", result);
+    // Konstruktor mit Haupttitel als String
+    public InputButton(Player player, ItemStack icon, Class<T> type, BiConsumer<T, Boolean> input, String message, String title) {
+        this(player, icon, type, input, message, Title.of(title, Message.CHAT_INPUT_DEFAULT_SUBTITLE.getKey()));
     }
 
-    public InputButton(ItemStack icon, String text, Consumer<String> result) {
-        this(icon, e -> {
-            new ChatInput((Player) e.getWhoClicked(), text, t -> {
-                result.accept(t);
-            });
+    // Standard Konstruktor
+    public InputButton(Player player, ItemStack icon, Class<T> type, BiConsumer<T, Boolean> input, String message, Title title) {
+        super(icon, click -> {
+            new ChatInput<T>(type)
+                    .message(message)
+                    .title(title)
+                    .response(input)
+                    .start(player);
         });
-    }
-
-    public InputButton onRightClick(Consumer<InventoryClickEvent> consumer) {
-        this.onRightClick = consumer;
-        return this;
-    }
-
-    private InputButton(ItemStack item, Consumer<InventoryClickEvent> consumer) {
-        super(item, consumer);
-    }
-
-    @Override
-    public void run(InventoryClickEvent e) {
-        if (this.onRightClick != null && e.getClick() == ClickType.RIGHT) {
-            this.onRightClick.accept(e);
-            return;
-        }
-        super.run(e);
     }
 
 }

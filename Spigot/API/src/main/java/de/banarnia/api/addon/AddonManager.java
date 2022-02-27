@@ -5,6 +5,7 @@ import de.banarnia.api.messages.Message;
 import de.banarnia.api.plugin.BanarniaPlugin;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -33,10 +34,7 @@ public class AddonManager {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Addon registrieren ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public final void registerAddon(Addon addon, String name, BanarniaPlugin plugin) {
-        // Null check
-        Validate.notNull(addon);
-
+    public final void registerAddon(@NotNull Addon addon, String name, BanarniaPlugin plugin) {
         // Leerzeichen aus Namen entfernen
         String addonName = name.replace(" ", "_");
 
@@ -131,13 +129,15 @@ public class AddonManager {
     // Wird beim Laden des Addons während der #onLoad() Phase des Plugins ausgeführt
     public final void loadAddon(Addon addon) {
         // Null check
-        Validate.notNull(addon);
+        if (addon == null)
+            throw new IllegalArgumentException();
 
         // Methode abbrechen, wenn das Addon schon geladen wurde
         if (addon.isLoaded()) return;
 
         // Abfrage, ob das Addon zum Serverstart geladen werden soll
-        Validate.isTrue(addon.shouldLoadOnStartup());
+        if (!addon.shouldLoadOnStartup())
+            return;
 
         // Überprüfen der Dependencies
         if (!checkDependencies(addon, true, false)) {
@@ -153,7 +153,8 @@ public class AddonManager {
     // Wird beim Laden des Addons ausgeführt
     public final void enableAddon(Addon addon, boolean updateConfig) {
         // Null check
-        Validate.notNull(addon);
+        if (addon == null)
+            throw new IllegalArgumentException();
 
         // Methode abbrechen, wenn das Addon schon aktiviert ist
         if (addon.isEnabled()) return;
@@ -181,7 +182,8 @@ public class AddonManager {
     // Wird beim Deaktivieren des Addons ausgeführt
     public final void disableAddon(Addon addon, boolean updateConfig) {
         // Null check
-        Validate.notNull(updateConfig);
+        if (addon == null)
+            throw new IllegalArgumentException();
 
         // Methode abbrechen, wenn das Addon bereits deaktiviert ist
         if (!addon.isEnabled()) return;
@@ -264,7 +266,8 @@ public class AddonManager {
     // Addon eines Plugins bekommen
     public final List<Addon> getAddons(BanarniaPlugin plugin) {
         // Null check
-        Validate.notNull(plugin);
+        if (plugin == null)
+            throw new IllegalArgumentException();
 
         // Addons zurückgeben
         return getAddons().stream()
@@ -276,7 +279,8 @@ public class AddonManager {
     // Addons bekommen, die von einem anderen abhängig sind
     public final List<Addon> getDependendAddons(Addon dependency) {
         // Null check
-        Validate.notNull(dependency);
+        if (dependency == null)
+            throw new IllegalArgumentException();
 
         // Addons zurückgeben
         return getAddons().stream()

@@ -33,9 +33,16 @@
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
+
+        <!-- PAPI -->
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <!-- Übergeordnete API -->
         <dependency>
             <groupId>de.banarnia</groupId>
             <artifactId>Lib</artifactId>
@@ -56,6 +63,14 @@
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
             <version>7.0.6-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- PAPI -->
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.11.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

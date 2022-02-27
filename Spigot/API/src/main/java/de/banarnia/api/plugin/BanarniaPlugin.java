@@ -5,9 +5,13 @@ import co.aikar.commands.contexts.ContextResolver;
 import com.google.common.collect.Maps;
 import de.banarnia.api.addon.AddonManager;
 import de.banarnia.api.commands.DefaultCommandContextResolver;
+import de.banarnia.api.messages.Message;
+import de.banarnia.api.messages.MessageHandler;
 import de.banarnia.api.plugin.events.PluginPreDisableEvent;
 import de.banarnia.api.plugin.events.PluginPreEnableEvent;
 import de.banarnia.api.plugin.events.PluginPreLoadEvent;
+import de.banarnia.api.skulls.SkullManager;
+import de.banarnia.api.smartInventory.InventoryManager;
 import de.banarnia.api.util.FileLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -36,32 +40,44 @@ public abstract class BanarniaPlugin extends JavaPlugin implements IBanarniaPlug
     // Config
     private FileLoader config;
 
+    // Message Handler
+    protected MessageHandler messageHandler;
+
     // Manager Instanzen
-    protected PaperCommandManager commandManager;
+    protected SkullManager skullManager;
     protected PluginManager pluginManager;
+    protected BukkitCommandManager commandManager;
     protected AddonManager addonManager;
+    protected InventoryManager inventoryManager;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Status Handling ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Wird beim Laden des Servers aufgerufen
     @Override
     public final void onLoad() {
-        // Instanz die die Map eintragen
+        // Pre-Load Methode aufrufen
+        preLoad();
+
+        // Instanz in die Map eintragen
         loadedPlugins.put(this.getName(), this);
 
         // Plugin Informationen
-        this.name = getName();
-        this.version = getDescription().getVersion();
-        this.icon = Material.GRASS_BLOCK;
+        this.name       = getName();
+        this.version    = getDescription().getVersion();
+        this.icon       = Material.GRASS_BLOCK;
 
         // Config
         this.config = FileLoader.of(getDataFolder(), "config.yml");
 
-        // Manager Instanzen
-        this.pluginManager = Bukkit.getPluginManager();
-        this.addonManager = AddonManager.getInstance();
+        // MessageHandler laden
+        this.messageHandler = MessageHandler.getInstance();
 
-        // Initialisierungs-Methoden des Interface IBanarniaPlugin aufrufen
+        // Manager Instanzen
+        this.skullManager       = SkullManager.getInstance();
+        this.pluginManager      = Bukkit.getPluginManager();
+        this.addonManager       = AddonManager.getInstance();
+
+        // Addons initialisieren
         registerAddons();
 
         // Addons laden
@@ -84,14 +100,17 @@ public abstract class BanarniaPlugin extends JavaPlugin implements IBanarniaPlug
         // Standard Completion und Context registrieren
         DefaultCommandContextResolver.registerDefaultContextAndCompletions(commandManager);
 
-        // Addons laden
-        TODO: this.addonManager.enableAddons(this);
+        // Manager Instanzen - wenn sie Listener registrieren
+        this.inventoryManager   = InventoryManager.getInstance();
+
+        // Addons aktivieren
+        this.addonManager.enableAddons(this);
 
         // Event aufrufen
         new PluginPreEnableEvent(this).callEvent();
 
         // Methode vom Interface IBanarniaPlugin aufrufen
-        load();
+        enable();
     }
 
     // Wird beim Beenden des Plugins aufgerufen
@@ -117,17 +136,17 @@ public abstract class BanarniaPlugin extends JavaPlugin implements IBanarniaPlug
         this.pluginManager.registerEvents(listener, this);
     }
 
-    // Command im PaperCommandManager registrieren
+    // Command im BukkitCommandManager registrieren
     public final void registerCommand(BaseCommand command) {
         this.commandManager.registerCommand(command);
     }
 
-    // Command-Completion im PaperCommandManager registrieren
+    // Command-Completion im BukkitCommandManager registrieren
     public void registerCommandCompletion(String id, CommandCompletions.CommandCompletionHandler<BukkitCommandCompletionContext> handler) {
         commandManager.getCommandCompletions().registerCompletion(id,handler);
     }
 
-    // Command-Context im PaperCommandManager registrieren
+    // Command-Context im BukkitCommandManager registrieren
     public void registerCommandContext(Class context, ContextResolver<Object, BukkitCommandExecutionContext> supplier) {
         commandManager.getCommandContexts().registerContext(context, supplier);
     }
@@ -138,7 +157,7 @@ public abstract class BanarniaPlugin extends JavaPlugin implements IBanarniaPlug
         return config;
     }
 
-    public PaperCommandManager getCommandManager() {
+    public BukkitCommandManager getCommandManager() {
         return commandManager;
     }
 

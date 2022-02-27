@@ -1,7 +1,7 @@
 package de.banarnia.api.commands;
 
 import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.PaperCommandManager;
+import co.aikar.commands.BukkitCommandManager;
 import com.google.common.collect.Lists;
 import de.banarnia.api.commands.wrapper.WorldGuardCommandContextResolver;
 import de.banarnia.api.messages.Language;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class DefaultCommandContextResolver {
 
-    public static void registerDefaultContextAndCompletions(PaperCommandManager commandManager) {
+    public static void registerDefaultContextAndCompletions(BukkitCommandManager commandManager) {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Java Context ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
